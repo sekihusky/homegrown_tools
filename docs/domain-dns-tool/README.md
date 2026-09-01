@@ -7,6 +7,7 @@
 輸入網域後，可顯示：
 
 - 網域對應的 IPv4 / IPv6 位址
+- 網域註冊起始日、最後更新日與註冊到期日（註冊局有公開時）
 - IP 所屬 ISP／組織、ASN 與推估地區
 - 管理該網域的 DNS 主機（NS 紀錄）
 - 其他公開 DNS 紀錄：CNAME、MX、TXT、SOA、CAA、SRV、DS、DNSKEY

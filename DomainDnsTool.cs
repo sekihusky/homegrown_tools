@@ -190,6 +190,10 @@ namespace DomainDnsTool
                 catch { }
             }
 
+            DomainRegistrationDates registrationDates = null;
+            try { registrationDates = WhoisClient.QueryDates(domain); }
+            catch { }
+
             return new LookupResult
             {
                 Domain = domain,
@@ -198,6 +202,7 @@ namespace DomainDnsTool
                 NameServerDomain = nsDomain,
                 IpDetails = ipDetails,
                 DnsRecords = dnsRecords,
+                RegistrationDates = registrationDates,
                 IpError = ipError,
                 NsError = nsError
             };
@@ -207,6 +212,15 @@ namespace DomainDnsTool
         {
             var lines = new List<string>();
             lines.Add("網域：" + result.Domain);
+            if (result.RegistrationDates != null && result.RegistrationDates.HasAny)
+            {
+                if (!string.IsNullOrWhiteSpace(result.RegistrationDates.Created))
+                    lines.Add("註冊起始日：" + result.RegistrationDates.Created);
+                if (!string.IsNullOrWhiteSpace(result.RegistrationDates.Updated))
+                    lines.Add("最後更新日：" + result.RegistrationDates.Updated);
+                if (!string.IsNullOrWhiteSpace(result.RegistrationDates.Expires))
+                    lines.Add("註冊到期日：" + result.RegistrationDates.Expires);
+            }
             lines.Add("");
             lines.Add("IP 位址：");
             if (result.Addresses.Length == 0) lines.Add("  （查無 A / AAAA 紀錄）");
@@ -283,8 +297,89 @@ namespace DomainDnsTool
         public string NameServerDomain;
         public Dictionary<string, IpDetail> IpDetails;
         public Dictionary<string, string[]> DnsRecords;
+        public DomainRegistrationDates RegistrationDates;
         public Exception IpError;
         public Exception NsError;
+    }
+
+    internal sealed class DomainRegistrationDates
+    {
+        public string Created;
+        public string Updated;
+        public string Expires;
+        public bool HasAny { get { return Created != null || Updated != null || Expires != null; } }
+    }
+
+    internal static class WhoisClient
+    {
+        public static DomainRegistrationDates QueryDates(string domain)
+        {
+            string tld = domain.Substring(domain.LastIndexOf('.') + 1);
+            string bootstrap = QueryServer("whois.iana.org", tld, 4500);
+            string whoisServer = FindValue(bootstrap, new[] { "whois" });
+            if (string.IsNullOrWhiteSpace(whoisServer)) return null;
+
+            string response = QueryServer(whoisServer.Trim(), domain, 6000);
+            var dates = new DomainRegistrationDates
+            {
+                Created = FindValue(response, new[]
+                {
+                    "Record created on", "Creation Date", "Created Date", "Created On",
+                    "Registered On", "Registration Time", "Domain Registration Date"
+                }),
+                Updated = FindValue(response, new[]
+                {
+                    "Updated Date", "Last Updated On", "Last Modified", "Modified", "Record last updated on"
+                }),
+                Expires = FindValue(response, new[]
+                {
+                    "Record expires on", "Registry Expiry Date", "Registrar Registration Expiration Date",
+                    "Expiration Date", "Expiry Date", "Expires On", "paid-till"
+                })
+            };
+            return dates.HasAny ? dates : null;
+        }
+
+        private static string QueryServer(string server, string query, int timeout)
+        {
+            using (var client = new TcpClient())
+            {
+                client.ReceiveTimeout = timeout;
+                client.SendTimeout = timeout;
+                IAsyncResult connection = client.BeginConnect(server, 43, null, null);
+                if (!connection.AsyncWaitHandle.WaitOne(timeout))
+                {
+                    client.Close();
+                    throw new TimeoutException("WHOIS 連線逾時。");
+                }
+                client.EndConnect(connection);
+                using (NetworkStream stream = client.GetStream())
+                {
+                    byte[] request = Encoding.ASCII.GetBytes(query + "\r\n");
+                    stream.Write(request, 0, request.Length);
+                    using (var reader = new StreamReader(stream, Encoding.UTF8))
+                        return reader.ReadToEnd();
+                }
+            }
+        }
+
+        private static string FindValue(string text, string[] labels)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return null;
+            string[] lines = text.Replace("\r", "").Split('\n');
+            foreach (string label in labels)
+            {
+                foreach (string rawLine in lines)
+                {
+                    string line = rawLine.Trim();
+                    if (!line.StartsWith(label, StringComparison.OrdinalIgnoreCase)) continue;
+                    string value = line.Substring(label.Length).Trim();
+                    if (value.StartsWith(":")) value = value.Substring(1).Trim();
+                    if (value.Length > 0) return value;
+                }
+            }
+            return null;
+        }
     }
 
     internal sealed class DnsQueryType
