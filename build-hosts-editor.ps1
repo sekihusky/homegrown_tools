@@ -13,6 +13,7 @@ $outputFile = Join-Path $outputDirectory 'HostsFileEditor.exe'
 
 & $compiler /nologo /target:winexe /optimize+ /platform:anycpu `
     /reference:System.dll /reference:System.Core.dll /reference:System.Drawing.dll /reference:System.Windows.Forms.dll `
+    "/win32icon:$(Join-Path $PSScriptRoot 'assets\icons\hosts-file-editor.ico')" `
     "/win32manifest:$(Join-Path $PSScriptRoot 'HostsFileEditor.manifest')" `
     "/out:$outputFile" (Join-Path $PSScriptRoot 'HostsFileEditor.cs')
 

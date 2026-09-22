@@ -15,6 +15,7 @@ $outputFile = Join-Path $outputDirectory 'DomainDnsTool.exe'
 
 & $compiler /nologo /target:winexe /optimize+ /platform:anycpu `
     /reference:System.dll /reference:System.Core.dll /reference:System.Drawing.dll /reference:System.Windows.Forms.dll /reference:System.Runtime.Serialization.dll `
+    "/win32icon:$(Join-Path $PSScriptRoot 'assets\icons\domain-dns-tool.ico')" `
     "/out:$outputFile" (Join-Path $PSScriptRoot 'DomainDnsTool.cs')
 
 if ($LASTEXITCODE -ne 0) { throw "Build failed with exit code: $LASTEXITCODE" }

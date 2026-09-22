@@ -9,6 +9,7 @@
 | Port 連線測試工具 | 不依賴 Telnet，測試 IP／網域的 TCP Port 是否可連線 | [`PortChecker.exe`](release/PortChecker.exe) | [使用說明](docs/port-checker/README.md) |
 | 網域 IP / DNS 查詢工具 | 查詢網域註冊日期、DNS，以及 IP 的 ISP／ASN／推估地區 | [`DomainDnsTool.exe`](release/DomainDnsTool.exe) | [使用說明](docs/domain-dns-tool/README.md) |
 | Hosts 檔案編輯器 | 搜尋、編輯、停用及備份 Windows hosts 規則 | [`HostsFileEditor.exe`](release/HostsFileEditor.exe) | [使用說明](docs/hosts-file-editor/README.md) |
+| 區域網路裝置掃描器 | 搜尋同一 C Class 網段內使用中的 IP、名稱、類型與 MAC | [`LanDeviceScanner.exe`](release/LanDeviceScanner.exe) | [使用說明](docs/lan-device-scanner/README.md) |
 
 ## 使用需求
 
