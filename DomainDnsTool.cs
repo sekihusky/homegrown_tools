@@ -44,7 +44,7 @@ namespace DomainDnsTool
 
             var title = new Label
             {
-                Text = "輸入網域名稱",
+                Text = "輸入網域或 IP 位址",
                 AutoSize = true,
                 Location = new Point(24, 24),
                 Font = new Font(Font, FontStyle.Bold)
@@ -69,7 +69,7 @@ namespace DomainDnsTool
             queryButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             queryButton.Click += delegate { StartQuery(); };
 
-            statusLabel.Text = "可輸入純網域，也可直接貼上網址";
+            statusLabel.Text = "可輸入網域、網址，或直接輸入 IPv4 / IPv6 位址";
             statusLabel.ForeColor = Color.DimGray;
             statusLabel.AutoSize = false;
             statusLabel.Location = new Point(24, 96);
@@ -95,10 +95,10 @@ namespace DomainDnsTool
 
         private async void StartQuery()
         {
-            string domain;
+            string input;
             try
             {
-                domain = NormalizeDomain(domainBox.Text);
+                input = NormalizeInput(domainBox.Text);
             }
             catch (Exception ex)
             {
@@ -109,11 +109,13 @@ namespace DomainDnsTool
             queryButton.Enabled = false;
             domainBox.Enabled = false;
             resultBox.Text = "查詢中...";
-            statusLabel.Text = "正在查詢 " + domain;
+            statusLabel.Text = "正在查詢 " + input;
 
             try
             {
-                var result = await Task.Run(() => Lookup(domain));
+                IPAddress inputAddress;
+                var result = await Task.Run(() => IPAddress.TryParse(input, out inputAddress)
+                    ? LookupIp(inputAddress) : Lookup(input));
                 resultBox.Text = FormatResult(result);
                 statusLabel.Text = "查詢完成";
             }
@@ -208,9 +210,53 @@ namespace DomainDnsTool
             };
         }
 
+        private static LookupResult LookupIp(IPAddress address)
+        {
+            IpDetail detail = null;
+            try { detail = IpInfoClient.Query(address); }
+            catch { }
+
+            var details = new Dictionary<string, IpDetail>();
+            if (detail != null) details[address.ToString()] = detail;
+            return new LookupResult
+            {
+                Domain = address.ToString(),
+                Addresses = new[] { address },
+                NameServers = new string[0],
+                NameServerDomain = address.ToString(),
+                IpDetails = details,
+                DnsRecords = new Dictionary<string, string[]>(),
+                IsIpQuery = true
+            };
+        }
+
         private static string FormatResult(LookupResult result)
         {
             var lines = new List<string>();
+            if (result.IsIpQuery)
+            {
+                IPAddress address = result.Addresses[0];
+                string type = address.AddressFamily == AddressFamily.InterNetwork ? "IPv4" : "IPv6";
+                lines.Add("查詢 IP：" + address + "  (" + type + ")");
+                lines.Add("");
+                IpDetail detail;
+                if (result.IpDetails != null && result.IpDetails.TryGetValue(address.ToString(), out detail))
+                {
+                    lines.Add("ISP / 組織：" + (string.IsNullOrWhiteSpace(detail.Isp) ? "查無資料" : detail.Isp));
+                    lines.Add("ASN：" + (detail.Asn > 0 ? "AS" + detail.Asn : "查無資料"));
+                    string location = string.Join("、", new[] { detail.Country, detail.Region, detail.City }
+                        .Where(x => !string.IsNullOrWhiteSpace(x)).Distinct().ToArray());
+                    lines.Add("推估機房地區：" + (location.Length > 0 ? location : "查無資料"));
+                }
+                else
+                {
+                    lines.Add("ISP / 組織：查無資料");
+                    lines.Add("ASN：查無資料");
+                    lines.Add("推估機房地區：查無資料");
+                }
+                return string.Join("\r\n", lines.ToArray());
+            }
+
             lines.Add("網域：" + result.Domain);
             if (result.RegistrationDates != null && result.RegistrationDates.HasAny)
             {
@@ -263,10 +309,13 @@ namespace DomainDnsTool
             return string.Join("\r\n", lines.ToArray());
         }
 
-        private static string NormalizeDomain(string input)
+        private static string NormalizeInput(string input)
         {
             string value = (input ?? "").Trim();
-            if (value.Length == 0) throw new Exception("請輸入網域名稱。");
+            if (value.Length == 0) throw new Exception("請輸入網域或 IP 位址。");
+
+            IPAddress directAddress;
+            if (IPAddress.TryParse(value, out directAddress)) return directAddress.ToString();
 
             Uri uri;
             if (!value.Contains("://")) value = "http://" + value;
@@ -275,7 +324,7 @@ namespace DomainDnsTool
 
             string host = uri.Host.TrimEnd('.');
             IPAddress parsedAddress;
-            if (IPAddress.TryParse(host, out parsedAddress)) throw new Exception("請輸入網域名稱，不要直接輸入 IP 位址。");
+            if (IPAddress.TryParse(host, out parsedAddress)) return parsedAddress.ToString();
             try { host = new IdnMapping().GetAscii(host); }
             catch { throw new Exception("網域格式不正確。請檢查是否包含無效字元。"); }
             if (!host.Contains(".") || host.Length > 253) throw new Exception("請輸入完整網域，例如 example.com。");
@@ -298,6 +347,7 @@ namespace DomainDnsTool
         public Dictionary<string, IpDetail> IpDetails;
         public Dictionary<string, string[]> DnsRecords;
         public DomainRegistrationDates RegistrationDates;
+        public bool IsIpQuery;
         public Exception IpError;
         public Exception NsError;
     }

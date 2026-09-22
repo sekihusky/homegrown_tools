@@ -12,6 +12,12 @@
 - 管理該網域的 DNS 主機（NS 紀錄）
 - 其他公開 DNS 紀錄：CNAME、MX、TXT、SOA、CAA、SRV、DS、DNSKEY
 
+直接輸入 IPv4 或 IPv6 位址時，會顯示：
+
+- ISP／組織
+- ASN
+- 推估機房地區
+
 ## 使用方式
 
 執行 [`release/DomainDnsTool.exe`](../../release/DomainDnsTool.exe)。可將這個 EXE 複製到其他 Windows 電腦直接使用。
