@@ -1,0 +1,10 @@
+/sshnet.*.nupkg
+/packages/*
+!/packages/SSH.NET.2020.0.2/
+/packages/SSH.NET.2020.0.2/*
+!/packages/SSH.NET.2020.0.2/LICENSE
+!/packages/SSH.NET.2020.0.2/lib/
+/packages/SSH.NET.2020.0.2/lib/*
+!/packages/SSH.NET.2020.0.2/lib/net40/
+/packages/SSH.NET.2020.0.2/lib/net40/*
+!/packages/SSH.NET.2020.0.2/lib/net40/Renci.SshNet.dll
