@@ -8,6 +8,7 @@
 | --- | --- | --- | --- |
 | Port 連線測試工具 | 不依賴 Telnet，測試 IP／網域的 TCP Port 是否可連線 | [`PortChecker.exe`](release/PortChecker.exe) | [使用說明](docs/port-checker/README.md) |
 | 網域 IP / DNS 查詢工具 | 查詢網域註冊日期、DNS，以及 IP 的 ISP／ASN／推估地區 | [`DomainDnsTool.exe`](release/DomainDnsTool.exe) | [使用說明](docs/domain-dns-tool/README.md) |
+| DNS 更新檢查工具 | 比較主要公共 DNS 的 A／AAAA 回應，查看 IP 是否一致 | [`DnsPropagationChecker.exe`](release/DnsPropagationChecker.exe) | [使用說明](docs/dns-propagation-checker/README.md) |
 | Hosts 檔案編輯器 | 搜尋、編輯、停用及備份 Windows hosts 規則 | [`HostsFileEditor.exe`](release/HostsFileEditor.exe) | [使用說明](docs/hosts-file-editor/README.md) |
 | 區域網路裝置掃描器 | 搜尋同一 C Class 網段內使用中的 IP、名稱、類型與 MAC | [`LanDeviceScanner.exe`](release/LanDeviceScanner.exe) | [使用說明](docs/lan-device-scanner/README.md) |
 | SSH 站台管理器 | 管理 SSH 站台，以密碼或私鑰連線並支援多台終端並排檢視 | [`SshManager.exe`](release/SshManager.exe) | [使用說明](docs/ssh-manager/README.md) |
