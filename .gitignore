@@ -8,3 +8,4 @@
 !/packages/SSH.NET.2020.0.2/lib/net40/
 /packages/SSH.NET.2020.0.2/lib/net40/*
 !/packages/SSH.NET.2020.0.2/lib/net40/Renci.SshNet.dll
+/.build/

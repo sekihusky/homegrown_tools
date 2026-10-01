@@ -13,6 +13,7 @@
 | 區域網路裝置掃描器 | 搜尋同一 C Class 網段內使用中的 IP、名稱、類型與 MAC | [`LanDeviceScanner.exe`](release/LanDeviceScanner.exe) | [使用說明](docs/lan-device-scanner/README.md) |
 | SSH 站台管理器 | 管理 SSH 站台，以密碼或私鑰連線並支援多台終端並排檢視 | [`SshManager.exe`](release/SshManager.exe) | [使用說明](docs/ssh-manager/README.md) |
 | 資料夾命令提示字元 | 選擇資料夾後，以一般或系統管理員權限開啟命令提示字元 | [`FolderCommandLauncher.exe`](release/FolderCommandLauncher.exe) | [使用說明](docs/folder-command-launcher/README.md) |
+| 全球網址回應測試 | 從主要城市測量網址回應時間，顯示 HTTP、連線失敗及逾時 | [`GlobalUrlChecker.exe`](release/GlobalUrlChecker.exe) | [使用說明](docs/global-url-checker/README.md) |
 
 ## 使用需求
 
