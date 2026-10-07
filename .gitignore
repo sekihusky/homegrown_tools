@@ -9,3 +9,7 @@
 /packages/SSH.NET.2020.0.2/lib/net40/*
 !/packages/SSH.NET.2020.0.2/lib/net40/Renci.SshNet.dll
 /.build/
+
+# Large third-party runtime is downloaded by build-video-compressor.ps1
+/release/VideoCompressor/ffmpeg.exe
+/release/VideoCompressor/ffprobe.exe

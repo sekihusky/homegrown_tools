@@ -14,6 +14,7 @@
 | SSH 站台管理器 | 管理 SSH 站台，以密碼或私鑰連線並支援多台終端並排檢視 | [`SshManager.exe`](release/SshManager.exe) | [使用說明](docs/ssh-manager/README.md) |
 | 資料夾命令提示字元 | 選擇資料夾後，以一般或系統管理員權限開啟命令提示字元 | [`FolderCommandLauncher.exe`](release/FolderCommandLauncher.exe) | [使用說明](docs/folder-command-launcher/README.md) |
 | 全球網址回應測試 | 從主要城市測量網址回應時間，顯示 HTTP、連線失敗及逾時 | [`GlobalUrlChecker.exe`](release/GlobalUrlChecker.exe) | [使用說明](docs/global-url-checker/README.md) |
+| 影片減肥 | 盡量保留視覺畫質，壓縮 MP4 並可先試壓 | [`VideoCompressor.exe`](release/VideoCompressor/VideoCompressor.exe) | [使用說明](docs/video-compressor/README.md) |
 
 ## 使用需求
 
