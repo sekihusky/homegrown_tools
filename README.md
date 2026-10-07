@@ -24,6 +24,20 @@
 
 個別工具可能需要網路連線或系統管理員權限，請參閱各自的使用說明。
 
+## 在其他電腦重新建置影片減肥工具
+
+`VideoCompressor` 使用 FFmpeg 壓縮影片。由於 FFmpeg 執行檔超過一般 GitHub repository 的單檔大小限制，GitHub 上只保留建置腳本，不直接保存 `ffmpeg.exe` 與 `ffprobe.exe`。
+
+在另一台 Windows 電腦 clone 或 pull 專案後，請先確認該電腦可以連線到網際網路，再執行以下任一方式：
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\build-video-compressor.ps1
+```
+
+或直接雙擊專案根目錄的 `build-video-compressor.cmd`。
+
+建置腳本會從 FFmpeg Windows essentials build 下載壓縮檔、驗證 SHA256，將 `ffmpeg.exe` 和 `ffprobe.exe` 放入 `release/VideoCompressor/`，並重新編譯 `VideoCompressor.exe`。完成後請複製整個 `release/VideoCompressor/` 資料夾使用，不要只複製 EXE。
+
 ## 技術與部署原則
 
 - 新增工具不綁定 C# 或 .NET Framework；依功能需求選擇合適技術即可。

@@ -34,6 +34,8 @@ H.264 模式會使用 8-bit yuv420p，較高位深／色度取樣的來源可能
 在專案根目錄執行 `powershell -ExecutionPolicy Bypass -File .\build-video-compressor.ps1`。
 從 GitHub 下載或 clone 的專案未包含 ffmpeg.exe 與 ffprobe.exe，請先執行上述建置腳本，再使用成品。完整的本機發行資料夾仍為免安裝版。第一次建置需要網路下載 FFmpeg；快取位於 `packages/video-compressor`，下載檔會檢查 SHA256。
 
+若不方便手動輸入 PowerShell 指令，也可以在專案根目錄雙擊 `build-video-compressor.cmd`。建置完成後，請複製整個 `release/VideoCompressor/` 資料夾；其中包含主程式、`ffmpeg.exe` 與 `ffprobe.exe`。
+
 設定：H.265 CRF 20 / 23 / 26；H.264 CRF 18 / 21 / 24；preset medium。
 
 ## 第三方元件
