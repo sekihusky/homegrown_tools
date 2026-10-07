@@ -15,6 +15,7 @@
 | 資料夾命令提示字元 | 選擇資料夾後，以一般或系統管理員權限開啟命令提示字元 | [`FolderCommandLauncher.exe`](release/FolderCommandLauncher.exe) | [使用說明](docs/folder-command-launcher/README.md) |
 | 全球網址回應測試 | 從主要城市測量網址回應時間，顯示 HTTP、連線失敗及逾時 | [`GlobalUrlChecker.exe`](release/GlobalUrlChecker.exe) | [使用說明](docs/global-url-checker/README.md) |
 | 影片減肥 | 盡量保留視覺畫質，壓縮 MP4 並可先試壓 | [`VideoCompressor.exe`](release/VideoCompressor/VideoCompressor.exe) | [使用說明](docs/video-compressor/README.md) |
+| 開發工具箱 | 編碼／解碼、雜湊、JSON 與 URL 格式化 | [`DevToolbox.exe`](release/DevToolbox.exe) | [使用說明](docs/dev-toolbox/README.md) |
 
 ## 使用需求
 
