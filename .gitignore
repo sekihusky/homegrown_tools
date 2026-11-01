@@ -13,3 +13,4 @@
 # Large third-party runtime is downloaded by build-video-compressor.ps1
 /release/VideoCompressor/ffmpeg.exe
 /release/VideoCompressor/ffprobe.exe
+/release/VideoTrimmer/ffmpeg.exe
