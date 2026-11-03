@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Drawing;
 using System.Threading;
@@ -23,7 +23,16 @@ class Smoke
                 Assert(refused,"Existing output overwritten");
             }
             string preview=Path.Combine(dir,"preview.mp4"); new VideoEngine().Compress(input,preview,0,false,true,delegate(int p){});
-            Assert(VideoEngine.Duration(VideoEngine.Probe(preview))<=15.15,"Preview too long");
+            Assert(Math.Abs(VideoEngine.Duration(VideoEngine.Probe(preview))-10)<0.15,"Preview must be 10 seconds");
+            foreach(bool h264 in new bool[] { false, true }) foreach(string hw in new string[] { "cpu", "nvenc", "qsv", "amf" }) {
+                if(hw != "cpu" && !VideoEngine.HardwareAvailable(h264, hw)) { Console.WriteLine("Unavailable: " + hw + " h264=" + h264); continue; }
+                foreach(bool speed in new bool[] { false, true }) {
+                    string result=Path.Combine(dir, "mode-"+h264+"-"+hw+"-"+speed+".mp4");
+                    new VideoEngine().Compress(input,result,0,h264,true,speed,hw,delegate(int n){});
+                    Assert(Math.Abs(VideoEngine.Duration(VideoEngine.Probe(result))-10)<0.15,"Mode output duration incorrect");
+                    Console.WriteLine("PASS mode: " + hw + " h264="+h264+" speed="+speed);
+                }
+            }
             bool sameRefused=false; try { new VideoEngine().Compress(input,input,0,false,false,delegate(int p){}); } catch { sameRefused=true; }
             Assert(sameRefused,"Source overwritten");
             string cancelled=Path.Combine(dir,"cancelled.mp4"); var engine=new VideoEngine(); bool cancellation=false;
