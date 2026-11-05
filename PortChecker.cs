@@ -31,6 +31,8 @@ namespace PortChecker
         private readonly NumericUpDown portBox = new NumericUpDown();
         private readonly NumericUpDown timeoutBox = new NumericUpDown();
         private readonly CheckBox sslCheckBox = new CheckBox();
+        private readonly CheckBox redirectCheckBox = new CheckBox();
+        private readonly TextBox redirectResultBox = new TextBox();
         private readonly Button testButton = new Button();
         private readonly Button clearButton = new Button();
         private readonly Label resultTitle = new Label();
@@ -42,8 +44,8 @@ namespace PortChecker
         {
             Text = "Port 連線測試工具";
             StartPosition = FormStartPosition.CenterScreen;
-            ClientSize = new Size(680, 570);
-            MinimumSize = new Size(620, 530);
+            ClientSize = new Size(680, 680);
+            MinimumSize = new Size(620, 640);
             Font = new Font("Microsoft JhengHei UI", 10F);
             Icon = SystemIcons.Shield;
             BackColor = Color.FromArgb(246, 248, 251);
@@ -104,7 +106,12 @@ namespace PortChecker
             sslCheckBox.Location = new Point(24, 158);
             sslCheckBox.ForeColor = Color.FromArgb(55, 65, 81);
 
-            resultPanel.Location = new Point(24, 190);
+            redirectCheckBox.Text = "檢查 HTTP 是否跳轉 HTTPS（同一 Port）";
+            redirectCheckBox.AutoSize = true;
+            redirectCheckBox.Location = new Point(24, 187);
+            redirectCheckBox.ForeColor = Color.FromArgb(55, 65, 81);
+
+            resultPanel.Location = new Point(24, 218);
             resultPanel.Size = new Size(632, 112);
             resultPanel.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             resultPanel.BackColor = Color.White;
@@ -123,16 +130,24 @@ namespace PortChecker
             resultPanel.Controls.Add(resultTitle);
             resultPanel.Controls.Add(resultDetail);
 
-            var historyLabel = MakeLabel("測試紀錄", 24, 321);
+            redirectResultBox.Location = new Point(24, 339);
+            redirectResultBox.Size = new Size(632, 68);
+            redirectResultBox.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+            redirectResultBox.Multiline = true;
+            redirectResultBox.ReadOnly = true;
+            redirectResultBox.ScrollBars = ScrollBars.Vertical;
+            redirectResultBox.Text = "勾選後檢查 HTTP 回應的跳轉位置。";
+
+            var historyLabel = MakeLabel("測試紀錄", 24, 422);
             historyLabel.Font = new Font(Font, FontStyle.Bold);
             clearButton.Text = "清除";
-            clearButton.Location = new Point(590, 313);
+            clearButton.Location = new Point(590, 414);
             clearButton.Size = new Size(66, 30);
             clearButton.Anchor = AnchorStyles.Top | AnchorStyles.Right;
             clearButton.Click += delegate { history.Items.Clear(); };
 
-            history.Location = new Point(24, 350);
-            history.Size = new Size(632, 196);
+            history.Location = new Point(24, 451);
+            history.Size = new Size(632, 205);
             history.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             history.View = View.Details;
             history.FullRowSelect = true;
@@ -144,7 +159,7 @@ namespace PortChecker
             history.Columns.Add("耗時 / 說明", 175);
 
             Controls.AddRange(new Control[] { header, subtitle, hostLabel, hostBox, portLabel, portBox,
-                timeoutLabel, timeoutBox, testButton, sslCheckBox, resultPanel, historyLabel, clearButton, history });
+                timeoutLabel, timeoutBox, testButton, sslCheckBox, redirectCheckBox, resultPanel, redirectResultBox, historyLabel, clearButton, history });
             AcceptButton = testButton;
             Shown += delegate { hostBox.Focus(); };
         }
@@ -162,18 +177,25 @@ namespace PortChecker
             int port = Decimal.ToInt32(portBox.Value);
             int timeout = Decimal.ToInt32(timeoutBox.Value) * 1000;
             bool checkSsl = sslCheckBox.Checked;
+            bool checkRedirect = redirectCheckBox.Checked;
+            redirectResultBox.Text = checkRedirect ? "HTTP 跳轉檢查中…" : "未啟用 HTTP 跳轉檢查。";
             SetBusy(true);
             ShowResult("測試中…", "正在連線到 " + FormatTarget(host, port) + (checkSsl ? "，接著會測試 SSL/TLS 握手" : ""), Color.FromArgb(37, 99, 235));
 
             TestResult result;
             try
             {
-                result = await Task.Run(() => TestConnection(host, port, timeout));
-                if (result.Success && checkSsl)
+                result = await Task.Run(() =>
                 {
-                    result.SslChecked = true;
-                    CheckSsl(host, port, timeout, result);
-                }
+                    TestResult current = TestConnection(host, port, timeout);
+                    if (current.Success && checkSsl)
+                    {
+                        current.SslChecked = true;
+                        CheckSsl(host, port, timeout, current);
+                    }
+                    if (current.Success && checkRedirect) current.RedirectMessage = CheckHttpRedirect(host, port, timeout);
+                    return current;
+                });
             }
             catch (Exception ex)
             {
@@ -189,10 +211,47 @@ namespace PortChecker
             else
                 ShowResult("✕ 連線失敗", FormatTarget(host, port) + " 無法連線：" + result.Message, Color.FromArgb(220, 38, 38));
 
+            if (checkRedirect) redirectResultBox.Text = result.Success ? result.RedirectMessage : "HTTP 跳轉檢查未執行：TCP 連線失敗。";
+
             AddHistory(host, port, result);
             SetBusy(false);
             hostBox.Focus();
             hostBox.SelectAll();
+        }
+
+        private static string CheckHttpRedirect(string host, int port, int timeoutMilliseconds)
+        {
+            try
+            {
+                Uri source = new UriBuilder("http", host, port, "/").Uri;
+                var request = (HttpWebRequest)WebRequest.Create(source);
+                request.AllowAutoRedirect = false;
+                request.Proxy = null;
+                request.Timeout = timeoutMilliseconds;
+                request.ReadWriteTimeout = timeoutMilliseconds;
+                request.Method = "GET";
+                HttpWebResponse response;
+                try { response = (HttpWebResponse)request.GetResponse(); }
+                catch (WebException ex)
+                {
+                    response = ex.Response as HttpWebResponse;
+                    if (response == null) return "HTTP 跳轉檢查失敗：" + ex.Message;
+                }
+                using (response)
+                {
+                    int status = (int)response.StatusCode;
+                    string location = response.Headers[HttpResponseHeader.Location];
+                    if (status != 301 && status != 302 && status != 303 && status != 307 && status != 308)
+                        return "HTTP " + status + "：未回傳 HTTP 跳轉。";
+                    Uri destination;
+                    if (String.IsNullOrWhiteSpace(location) || !Uri.TryCreate(source, location, out destination))
+                        return "HTTP " + status + "：跳轉位置不存在或無效。";
+                    bool same = destination.Scheme.Equals("https", StringComparison.OrdinalIgnoreCase) &&
+                        destination.Host.Equals(source.Host, StringComparison.OrdinalIgnoreCase) && destination.Port == port;
+                    return "HTTP " + status + "：" + (same ? "有跳轉到同主機、同 Port 的 HTTPS" : "有跳轉，但目標不是同主機、同 Port 的 HTTPS") + "\r\n" + destination.AbsoluteUri;
+                }
+            }
+            catch (Exception ex) { return "HTTP 跳轉檢查失敗：" + ex.Message; }
         }
 
         private static TestResult TestConnection(string host, int port, int timeoutMilliseconds)
@@ -341,6 +400,7 @@ namespace PortChecker
             portBox.Enabled = !busy;
             timeoutBox.Enabled = !busy;
             sslCheckBox.Enabled = !busy;
+            redirectCheckBox.Enabled = !busy;
             testButton.Text = busy ? "測試中" : "測試";
             UseWaitCursor = busy;
         }
@@ -427,6 +487,7 @@ namespace PortChecker
         public string Address { get; set; }
         public long ElapsedMilliseconds { get; set; }
         public string Message { get; set; }
+        public string RedirectMessage { get; set; }
         public bool SslChecked { get; set; }
         public bool SslSuccess { get; set; }
         public string SslProtocol { get; set; }
