@@ -6,6 +6,7 @@
 
 | 工具 | 用途 | 執行檔 | 文件 |
 | --- | --- | --- | --- |
+| C 槽清理助手 | 預覽舊暫存檔與當機報告，勾選後移到資源回收筒 | [`DiskCleanupHelper.exe`](release/DiskCleanupHelper.exe) | [使用說明](docs/disk-cleanup-helper/README.md) |
 | SSL 憑證到期檢測 | 選取本機憑證，查看到期日、剩餘天數與憑證鏈 | [`SslCertificateChecker.exe`](release/SslCertificateChecker.exe) | [使用說明](docs/ssl-certificate-checker/README.md) |
 | 網路修復小幫手 | 清除 DNS 快取、更新 DHCP IP、網路設定及 DNS／Ping 測試 | [`NetworkHelper.exe`](release/NetworkHelper.exe) | [使用說明](docs/network-helper/README.md) |
 | Port 連線測試工具 | 不依賴 Telnet，測試 IP／網域的 TCP Port 是否可連線 | [`PortChecker.exe`](release/PortChecker.exe) | [使用說明](docs/port-checker/README.md) |
