@@ -6,6 +6,7 @@
 
 | 工具 | 用途 | 執行檔 | 文件 |
 | --- | --- | --- | --- |
+| API 測試工具 | 編輯 HTTP 請求、驗證與 Body，查看回應並儲存收藏 | [`ApiTester.exe`](release/ApiTester.exe) | [使用說明](docs/api-tester/README.md) |
 | C 槽清理助手 | 預覽舊暫存檔與當機報告，勾選後移到資源回收筒 | [`DiskCleanupHelper.exe`](release/DiskCleanupHelper.exe) | [使用說明](docs/disk-cleanup-helper/README.md) |
 | SSL 憑證到期檢測 | 選取本機憑證，查看到期日、剩餘天數與憑證鏈 | [`SslCertificateChecker.exe`](release/SslCertificateChecker.exe) | [使用說明](docs/ssl-certificate-checker/README.md) |
 | 網路修復小幫手 | 清除 DNS 快取、更新 DHCP IP、網路設定及 DNS／Ping 測試 | [`NetworkHelper.exe`](release/NetworkHelper.exe) | [使用說明](docs/network-helper/README.md) |
