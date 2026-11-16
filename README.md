@@ -6,6 +6,7 @@
 
 | 工具 | 用途 | 執行檔 | 文件 |
 | --- | --- | --- | --- |
+| 網站圖片減肥 | 選取資料夾批次壓縮 JPG、PNG、WebP，保留尺寸並自動備份 | [`ImageCompressor.exe`](release/ImageCompressor/ImageCompressor.exe) | [使用說明](docs/image-compressor/README.md) |
 | HTTP 協定檢測 | 輸入網址實測 HTTP/1.1、HTTP/2、HTTP/3，顯示狀態碼與耗時 | [`HttpProtocolChecker.exe`](release/HttpProtocolChecker/HttpProtocolChecker.exe) | [使用說明](docs/http-protocol-checker/README.md) |
 | API 測試工具 | 編輯 HTTP 請求、驗證與 Body，查看回應並儲存收藏 | [`ApiTester.exe`](release/ApiTester.exe) | [使用說明](docs/api-tester/README.md) |
 | C 槽清理助手 | 預覽舊暫存檔與當機報告，勾選後移到資源回收筒 | [`DiskCleanupHelper.exe`](release/DiskCleanupHelper.exe) | [使用說明](docs/disk-cleanup-helper/README.md) |
